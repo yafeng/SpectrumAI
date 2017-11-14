@@ -151,31 +151,28 @@ InspectSpectrum <- function (DF){
 setwd()
 
 #set one or multiple paths in which raw files are located
-mzml_path_vector=c()
+mzml_path= ""
 
 #set one or multiple PSM tables which should be in same order as the path vector
 #For example, path of raw spectra in the first PSM file should be found in first path location in the path vector, and so on
-infile_vector=c()
+infile_name =""
 #set corresponding output file name for each of input PSM file, in same order
-outfile_vector=c()
+outfile_name =""
 
 Frag.ions.tolerance= 10e-6 # 10 ppm tolerance for MS2 fragment ions mass accuracy.
 Oxidation_notation = "+15.995"  # define how oxidation on methionine noted in the Peptide Column
 
 start.time <- Sys.time()
 start.time
-for (n in 1:length(mzml_path_vector)){
-  mzml_path=mzml_path_vector[n]
-  infile=infile_vector[n]
-  outfile=outfile_vector[n]
-  
-  df.psm=read.table(infile,sep="\t",header=T,comment.char = "",quote = "")
+
+
+df.psm=read.table(infile,sep="\t",header=T,comment.char = "",quote = "")
   #Before running the next command, double check the header names in the input PSM table
   #The df.psm dataframe should have at least the following columns with exactly same names (the order can be different): 
   # "SpectraFile", "ScanNum", "Peptide", "Charge", "sub_pos" 
-  InspectSpectrum(df.psm)
-  write.table(DF,outfile,sep="\t",quote=F,row.names=F)
-}
+
+InspectSpectrum(df.psm)
+write.table(DF,outfile,sep="\t",quote=F,row.names=F)
 
 end.time <- Sys.time()
 time.taken <- end.time - start.time
