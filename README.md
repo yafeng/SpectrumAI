@@ -64,4 +64,10 @@ Assume a 12-amino-acid peptide is identified with single substitution at 8th res
 
 4. After you set everything, ctrl-A to select all codes and click run.
 
+## To make mirror plot for a list of synthetic peptides
+1. open plot_mirror_image.R in R studio.
+2. set variables correctly
+3. double check if all modifications are correctly specified. For example, the script is made for TMT labeled peptides. If you have label free data, you should remove "Nterm=229.163,K=229.163" from modifications.
+4. run the scripts
+
 
