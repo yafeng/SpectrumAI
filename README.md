@@ -36,28 +36,32 @@ Assume a 12-amino-acid peptide is identified with single substitution at 8th res
 ## To curate a list of variant peptide identifications
 1. Prepare the list of variant peptide PSMs table in tabular format. It should contain at least the following columns with exactly same names (the order can be different):
 
-"SpectraFile" -  The filename of spectra file in which the variant peptide PSM is identified.
-"ScanNum" - The scan number
-"Peptide" - The peptide sequence. Modified residues should be noted in a way. For instance, in MSGF-plus search engine output, "M+15.995GYEEAE", M+15.995 is used to indicate oxidation on Methonine. In PD output, "mGYEEAE" is used to indicate oxidation on methonie.
-"Charge" - Precursor chrage state
-"sub_pos" -  position in peptide indicate which amino acid is substituted. index starts from 1.
+    "SpectraFile" -  The filename of spectra file in which the variant peptide PSM is identified.
+    
+    "ScanNum" - The scan number
+    
+    "Peptide" - The peptide sequence. Modified residues should be noted in a way. For instance, in MSGF-plus search engine output, "M+15.995GYEEAE", M+15.995 is used to indicate oxidation on Methonine. In PD output, "mGYEEAE" is used to indicate oxidation on methonie.
+    
+    "Charge" - Precursor chrage state
+    
+    "sub_pos" -  position in peptide indicate which amino acid is substituted. index starts from 1.
 
 2. Open SpectrumAI.R script in R Studio.
 
 3. A few variables to set in advance.
 
-#set your working directory where you have want to store outputs
-setwd()
+    #set your working directory where you have want to store outputs
+    setwd()
 
-#set file path to which raw files are located, leave it empty if absolute file path is already indicated in the column "SpectraFile".
-mzml_path = ""
+    #set file path to which raw files are located, leave it empty if absolute file path is already indicated in the column "SpectraFile".
+    mzml_path = ""
 
-#PSM table file name
-infile_name =""
+    #PSM table file name
+    infile_name =""
 
-#set corresponding output file name
-outfile_name =""
+    #set corresponding output file name
+    outfile_name =""
 
-4 After you set everything, ctrl-A to select all codes and click run.
+4. After you set everything, ctrl-A to select all codes and click run.
 
 
