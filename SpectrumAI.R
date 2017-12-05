@@ -1,7 +1,57 @@
 library(mzR)
-library(MSnbase)
+library(protViz)
 library(stringr)
+
 options(stringsAsFactors = FALSE)
+
+predict_MS2_spectrum <- function (Peptide){
+  pepMSGF=gsub("[^A-Z]","",Peptide)
+  size = nchar(pepMSGF)
+  
+  pepMSGFMods=Peptide
+  pepMSGFMods=str_replace_all(pepMSGFMods,pattern = "([\\+,0-9,:,\\.]+)" ,replacement = "\\1:" )
+  
+  l='none'
+  while (l != pepMSGFMods){
+    l=pepMSGFMods
+    pepMSGFMods=sub("([^\\+,0-9,:])([^\\+,0-9,:])", "\\1:\\2", pepMSGFMods, perl=TRUE)  
+  }
+  pepMSGFMods=t(str_split(pepMSGFMods,pattern = ":",simplify = T))
+  pepMSGFMods=data.frame(str_split_fixed(pepMSGFMods,pattern = "\\+",2), stringsAsFactors = F)
+  pepMSGFMods[pepMSGFMods[,2]=="",2]=0
+  pepMSGFMods[,2]=  as.double(pepMSGFMods[,2])
+  pepMSGFMods[2,2] = pepMSGFMods[1,2] + pepMSGFMods[2,2]
+  
+  pepMSGFMods=pepMSGFMods[nchar(pepMSGFMods[,1])>0,]
+  pepMSGFWeights = protViz::aa2mass(pepMSGF)[[1]]
+  pepMSGFWeights =  pepMSGFWeights + t(as.double(pepMSGFMods[,2]))
+  
+  
+  ions=fragmentIon(pepMSGFWeights)
+  ions <- data.frame(mz=c(ions[[1]]$b,ions[[1]]$y), 
+                     ion=c(paste0(rep("b",size),1:size),paste0(rep("y",size),1:size)),
+                     type=c(rep("b",size),rep("y",size)),
+                     pos =rep(1:size,2),
+                     z=rep(1,size*2))
+  
+  if (grepl("K+229.163",Peptide,fixed = TRUE)){ ions[nrow(ions),1] = ions[nrow(ions),1] - 229.163}
+  
+  return (ions)
+}
+
+match_exp2predicted <- function (exp_peak,pred_peak,tolerance = 0.02, relative=FALSE){
+  pred_peak$error = apply(pred_peak,1,function(x) min(abs(as.numeric(x[1])-exp_peak[,1])))
+  pred_peak$intensity = apply(pred_peak,1,function(x) exp_peak[which.min(abs(as.numeric(x[1]) - exp_peak[,1])),2])
+  pred_peak$ppm = round(pred_peak$error/pred_peak$mz*1000000,2)
+  
+  if (relative){
+    match_ions = pred_peak[pred_peak$ppm <tolerance,]
+  }else{match_ions = pred_peak[pred_peak$error <tolerance,]
+  }
+  
+  return (match_ions)
+}
+
 
 InspectSpectrum <- function (DF){
     DF$Sequence=gsub("[^A-Z]","",DF$Peptide)
@@ -32,39 +82,28 @@ InspectSpectrum <- function (DF){
         mzml_file=paste0(mzml_path,spectra_file)
         ScanNum=as.integer(DF[i,]$ScanNum)
         peptide=as.character(DF[i,]$Peptide)
-        sub_pos=DF[i,]$sub_pos
+        sub_pos=as.integer(DF[i,]$sub_pos)
         seq=DF[i,]$Sequence
-        product_ions_charge=as.integer(DF[i,]$Charge)-1
-        if (product_ions_charge>3){product_ions_charge=2} #set maximum charge of product ions
-        if (product_ions_charge<1){product_ions_charge=1} #set minimum charge of product ions
         
         if (is.na(sub_pos)){next}
         if (sub_pos==0){next}
+        if (sub_pos>DF[i,]$peptide_length){next}
         if (is.null(Spectra_list[[spectra_file]])){
             Spectra_list[[spectra_file]]=openMSfile(mzml_file,verbose=T)
         }
         
         exp_peaks<-peaks(Spectra_list[[spectra_file]],scan=ScanNum)
-        exp_ms2_spectrum=new("Spectrum2",intensity=exp_peaks[,2],mz=exp_peaks[,1])
-        DF[i,]$status="checked"
+        predicted_peaks = predict_MS2_spectrum(Peptide =  as.character(DF[i,]$Peptide))
+        match_ions = match_exp2predicted(exp_peaks, predicted_peaks, tolerance =Frag.ions.tolerance, relative = relative )
         
-        # use neutralLoss=NULL to disable all neutralLoss
-        if (grepl(Oxidation_notation,peptide)){
-            match_ions=calculateFragments(seq,exp_ms2_spectrum,z=seq(1,product_ions_charge,1),relative=TRUE,tolerance=Frag.ions.tolerance,
-            modifications=c(M=15.995,C=57.021,Nterm=229.163,K=229.163),
-            neutralLoss=defaultNeutralLoss(disableAmmoniaLoss=c("K", "R","N","Q")),verbose=F)
-        }else {
-            match_ions=calculateFragments(seq,exp_ms2_spectrum,z=seq(1,product_ions_charge,1),relative=TRUE,tolerance=Frag.ions.tolerance,
-            modifications=c(C=57.021,Nterm=229.163,K=229.163),
-            neutralLoss=defaultNeutralLoss(disableAmmoniaLoss=c("K", "R","N","Q")),verbose=F)
-        }
+        DF[i,]$status="checked"
         
         if (nrow(match_ions)==0){next}
         DF[i,]$matched_ions=paste(unique(match_ions$ion),collapse = ",")
         
-        maxintensity=max(intensity(exp_ms2_spectrum))
-        average_intensity=mean(intensity(exp_ms2_spectrum))
-        median_intensity=median(intensity(exp_ms2_spectrum))
+        maxintensity=max(exp_peaks[,2])
+        average_intensity=mean(exp_peaks[,2])
+        median_intensity=median(exp_peaks[,2])
         
         supportions_intensity=0
         ions_support="NO"
@@ -90,7 +129,7 @@ InspectSpectrum <- function (DF){
         
         DF[i,]$sum.supportions.intensity=supportions_intensity
         DF[i,]$sum.matchedions.intensity=sum(match_ions$intensity)
-        DF[i,]$sum.fragmentions.intensity=sum(intensity(exp_ms2_spectrum))
+        DF[i,]$sum.fragmentions.intensity=sum(exp_peaks[,2])
         
         DF[i,]$maxintensity=maxintensity
         DF[i,]$average_intensity=average_intensity
@@ -138,7 +177,7 @@ InspectSpectrum <- function (DF){
         DF[i,]$flanking_ions=paste(flanking_ions,collapse = ",")
         DF[i,]$sum.flanking.ions.intensity=sum(match_ions[match_ions$ion %in% flanking_ions,]$intensity)
         
-        #fragmentation is not preferable at Cterm side of proline, so just to loosen the rules
+        #fragmentation is not preferable at Cterm side of proline, so only require supporting ions
         if (grepl("P",substr(seq, sub_pos-1, sub_pos))){
             DF[i,]$flanking_ions_support=DF[i,]$ions_support
         }
@@ -159,20 +198,23 @@ infile_name =""
 #set corresponding output file name for each of input PSM file, in same order
 outfile_name =""
 
-Frag.ions.tolerance= 10e-6 # 10 ppm tolerance for MS2 fragment ions mass accuracy.
-Oxidation_notation = "+15.995"  # define how oxidation on methionine noted in the Peptide Column
+Frag.ions.tolerance= 0.02 # 0.02 Da tolerance for MS2 fragment ions mass accuracy.
+relative=FALSE
+
+# or you can use ppm threshold
+# Frag.ions.tolerance= 10 # 10 ppm tolerance for MS2 fragment ions mass accuracy.
+# relative=TRUE
 
 start.time <- Sys.time()
 start.time
 
-
 df.psm=read.table(infile,sep="\t",header=T,comment.char = "",quote = "")
   #Before running the next command, double check the header names in the input PSM table
   #The df.psm dataframe should have at least the following columns with exactly same names (the order can be different): 
-  # "SpectraFile", "ScanNum", "Peptide", "Charge", "sub_pos" 
+  # "SpectraFile", "ScanNum", "Peptide",  "sub_pos" 
 
 InspectSpectrum(df.psm)
-write.table(DF,outfile,sep="\t",quote=F,row.names=F)
+write.table(df.psm,outfile,sep="\t",quote=F,row.names=F)
 
 end.time <- Sys.time()
 time.taken <- end.time - start.time

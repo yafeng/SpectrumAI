@@ -10,7 +10,7 @@ plot_annotated_spectrum.R is the script to draw annotated spectra of any PSM. (m
 
 # Prerequisite R library
 
-requires R libraries "mzR" and "MSnbase".
+requires R libraries "mzR" , "protViz", and "MSnbase".
 
 Install them from Bioconductor
 
@@ -20,6 +20,7 @@ biocLite("mzR")
 
 biocLite("MSnbase")
 
+biocLite("protViz")
 
 # How does SpectrumAI work?
 
@@ -33,17 +34,15 @@ Assume a 12-amino-acid peptide is identified with single substitution at 8th res
 ![My image](https://github.com/yafeng/SpectrumAI/blob/master/image/SpectrumAI.png)
 
 # how to use
-## To curate a list of variant peptide identifications
+## To curate a list of variant peptide identifications (support only MSGF+ search outputs)
 1. Prepare the list of variant peptide PSMs table in tabular format. It should contain at least the following columns with exactly same names (the order can be different):
 
     "SpectraFile" -  The filename of spectra file in which the variant peptide PSM is identified.
     
     "ScanNum" - The scan number
     
-    "Peptide" - The peptide sequence. Modified residues should be noted in a way. For instance, in MSGF-plus search engine output, "M+15.995GYEEAE", M+15.995 is used to indicate oxidation on Methonine. In PD output, "mGYEEAE" is used to indicate oxidation on methonie.
-    
-    "Charge" - Precursor chrage state
-    
+    "Peptide" - The peptide sequence. Modifications are noted. For instance, in MSGF+ search engine output, "M+15.995GYEEAE", M+15.995 is used to indicate oxidation on Methonine.
+
     "sub_pos" -  position in peptide indicate which amino acid is substituted. index starts from 1.
 
 2. Open SpectrumAI.R script in R Studio.
@@ -61,13 +60,16 @@ Assume a 12-amino-acid peptide is identified with single substitution at 8th res
 
     #set corresponding output file name
     outfile_name =""
+    
+    #set MS2 peaks matching accuracy
+    Frag.ions.tolerance= 0.02 # 0.02 Da tolerance for MS2 fragment ions mass accuracy.
+    relative=FALSE
 
 4. After you set everything, ctrl-A to select all codes and click run.
 
-## To make mirror plot for a list of synthetic peptides
-1. open plot_mirror_image.R in R studio.
-2. set variables correctly
-3. double check if all modifications are correctly specified. For example, the script is made for TMT labeled peptides. If you have label free data, you should remove "Nterm=229.163,K=229.163" from modifications.
-4. run the scripts
+## To generate mirror plots for a list of synthetic peptides (to be updated)
+
+
+## To generate annotated spectra of peptide identifications (to be updated)
 
 
