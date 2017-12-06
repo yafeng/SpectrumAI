@@ -34,8 +34,6 @@ predict_MS2_spectrum <- function (Peptide){
                      pos =rep(1:size,2),
                      z=rep(1,size*2))
   
-  if (grepl("K+229.163",Peptide,fixed = TRUE)){ ions[nrow(ions),1] = ions[nrow(ions),1] - 229.163}
-  
   return (ions)
 }
 
