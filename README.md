@@ -48,22 +48,14 @@ Assume a 12-amino-acid peptide is identified with single substitution at 8th res
 2. Open SpectrumAI.R script in R Studio.
 
 3. A few variables to set in advance.
-
-    #set your working directory where you have want to store outputs
-    setwd()
-
-    #set file path to which raw files are located, leave it empty if absolute file path is already indicated in the column "SpectraFile".
-    mzml_path = ""
-
-    #PSM table file name
-    infile_name =""
-
-    #set corresponding output file name
-    outfile_name =""
-    
-    #set MS2 peaks matching accuracy
-    Frag.ions.tolerance= 0.02 # 0.02 Da tolerance for MS2 fragment ions mass accuracy.
-    relative=FALSE
+```{r}
+setwd()  #set your working directory
+mzml_path = "" # set file path to which raw files are located
+infile_name =""  # PSM table file name
+outfile_name =""  #set corresponding output file name
+Frag.ions.tolerance= 0.02 # 0.02 Da tolerance for MS2 fragment ions mass accuracy.
+relative=FALSE  # set TRUE if ppm value is used for Frag.ions.tolerance
+```
 
 4. After you set everything, ctrl-A to select all codes and click run.
 

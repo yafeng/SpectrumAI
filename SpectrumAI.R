@@ -85,9 +85,6 @@ InspectSpectrum <- function (DF){
         sub_pos=as.integer(DF[i,]$sub_pos)
         seq=DF[i,]$Sequence
         
-        if (is.na(sub_pos)){next}
-        if (sub_pos==0){next}
-        if (sub_pos>DF[i,]$peptide_length){next}
         if (is.null(Spectra_list[[spectra_file]])){
             Spectra_list[[spectra_file]]=openMSfile(mzml_file,verbose=T)
         }
@@ -96,14 +93,24 @@ InspectSpectrum <- function (DF){
         predicted_peaks = predict_MS2_spectrum(Peptide =  as.character(DF[i,]$Peptide))
         match_ions = match_exp2predicted(exp_peaks, predicted_peaks, tolerance =Frag.ions.tolerance, relative = relative )
         
-        DF[i,]$status="checked"
-        
-        if (nrow(match_ions)==0){next}
-        DF[i,]$matched_ions=paste(unique(match_ions$ion),collapse = ",")
-        
         maxintensity=max(exp_peaks[,2])
         average_intensity=mean(exp_peaks[,2])
         median_intensity=median(exp_peaks[,2])
+        
+        DF[i,]$sum.fragmentions.intensity=sum(exp_peaks[,2])
+        DF[i,]$maxintensity=maxintensity
+        DF[i,]$average_intensity=average_intensity
+        DF[i,]$median_intensity=median_intensity
+        
+        if (nrow(match_ions)==0){next}
+        DF[i,]$matched_ions=paste(unique(match_ions$ion),collapse = ",")
+        DF[i,]$sum.matchedions.intensity=sum(match_ions$intensity)
+        
+        if (is.na(sub_pos)){next}
+        if (sub_pos==0){next}
+        if (sub_pos>DF[i,]$peptide_length){next}
+        
+        DF[i,]$status="checked"
         
         supportions_intensity=0
         ions_support="NO"
@@ -126,14 +133,8 @@ InspectSpectrum <- function (DF){
         
         DF[i,]$ions_support=ions_support
         DF[i,]$support_ions=supportions
-        
         DF[i,]$sum.supportions.intensity=supportions_intensity
-        DF[i,]$sum.matchedions.intensity=sum(match_ions$intensity)
-        DF[i,]$sum.fragmentions.intensity=sum(exp_peaks[,2])
-        
-        DF[i,]$maxintensity=maxintensity
-        DF[i,]$average_intensity=average_intensity
-        DF[i,]$median_intensity=median_intensity
+
         
         #check if it is a noise peak or isotope peak supporting mutant ions
         if (DF[i,]$sum.supportions.intensity < DF[i,]$median_intensity){DF[i,]$ions_support <- "NO"}
@@ -146,17 +147,14 @@ InspectSpectrum <- function (DF){
         n2=sub_pos
         if (n2 ==1){
             flanking_ions=c("b1",paste0("y",as.character(n1-1)))
-            if ("b1" %in% match_ions$ion){
-                flanking_ions_support="YES"
-                
-            }else if (paste0("y",as.character(n1-1)) %in% match_ions$ion) {
+            flanking_ions=intersect(flanking_ions,match_ions$ion)
+            if (length(flanking_ions)>0){
                 flanking_ions_support="YES"
             }
         }else if (n2 == n1){
             flanking_ions=c("y1",paste0("b",as.character(n1-1)))
-            if ("y1" %in% match_ions$ion){
-                flanking_ions_support="YES"
-            }else if (paste0("b",as.character(n1-1)) %in% match_ions$ion) {
+            flanking_ions=intersect(flanking_ions,match_ions$ion)
+            if (length(flanking_ions)>0){
                 flanking_ions_support="YES"
             }
         }else {
@@ -166,9 +164,12 @@ InspectSpectrum <- function (DF){
             flanking_ions_right=c(paste0("b",as.character(n2)))
             flanking_ions_right=c(flanking_ions_right,paste0("y",as.character(n1-n2)))
             
+            
+            flanking_ions_left=intersect(flanking_ions_left,match_ions$ion)
+            flanking_ions_right=intersect(flanking_ions_right,match_ions$ion)
+            
             flanking_ions=union(flanking_ions_left,flanking_ions_right)
-            if ( length(intersect(flanking_ions_left,match_ions$ion))>=1 &
-            length(intersect(flanking_ions_right,match_ions$ion))>=1){
+            if ( length(flanking_ions_left)>0 & length(flanking_ions_left)>0){
                 flanking_ions_support="YES"
             }
         }
@@ -177,12 +178,12 @@ InspectSpectrum <- function (DF){
         DF[i,]$flanking_ions=paste(flanking_ions,collapse = ",")
         DF[i,]$sum.flanking.ions.intensity=sum(match_ions[match_ions$ion %in% flanking_ions,]$intensity)
         
+        if (DF[i,]$sum.flanking.ions.intensity < DF[i,]$median_intensity){DF[i,]$flanking_ions_support <- "NO"}
+        
         #fragmentation is not preferable at Cterm side of proline, so only require supporting ions
         if (grepl("P",substr(seq, sub_pos-1, sub_pos))){
             DF[i,]$flanking_ions_support=DF[i,]$ions_support
         }
-        if (DF[i,]$sum.flanking.ions.intensity < DF[i,]$median_intensity){DF[i,]$flanking_ions_support <- "NO"}
-        
     }
 }
 
