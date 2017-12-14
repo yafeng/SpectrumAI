@@ -1,64 +1,64 @@
 library(mzR)
 library(MSnbase)
+library(protViz)
 library(stringr)
+
 options(stringsAsFactors = FALSE)
+
+#To call functions defined in SpectrumAI.R
+source("./Spectra_functions.R")
 
 #set working directory which contains the PSM table
 setwd("")
 
 mzml_path=""
 
-infile1=""
+infile=""
 
+##input PSM table is tsv output from MS-GF plus search engine
 ##double check if the dataframe has column names "SpecFile" , "Peptide", "Charge", "ScanNum", "SpecEValue", "Precursor"
-DF = read.table(infile1,header=T,comment.char = "",quote="",sep = "\t")
+DF = read.table(infile,header=T,comment.char = "",quote="",sep = "\t")
 DF$Sequence=gsub("[^A-Z]","",DF$Peptide)
 
-Oxidation = "+15,995"
 Frag.ions.tolerance= 0.02 # unit Dalton
+relative = FALSE
+
+Spectra_list= vector(mode="list", length=length(unique(as.character(DF[,]$SpectraFile))))
+names(Spectra_list)=unique(as.character(DF[,]$SpectraFile))
 
 pdf("PSM.annotated.spectra.pdf",width=12,height=7,useDingbats = FALSE)
 for (i in 1:nrow(DF)){
-  spectra_file=as.character(DF[i,]$SpectraFile)
-  mzml_file=paste0(mzml_path,spectra_file)
-  ScanNum=as.integer(DF[i,]$ScanNum)
-  peptide=as.character(DF[i,]$Peptide)
-  seq=DF[i,]$Sequence
-  precMass=DF[i,]$Precursor
-  precCharge=DF[i,]$Charge
-  
-  
-  rawdata <- openMSfile(mzml_file,verbose=T)
-  
-  exp_peaks<-peaks(rawdata,scan=ScanNum)
-  
-  exp_spectrum=new("Spectrum2",intensity=exp_peaks[,2],mz=exp_peaks[,1],centroided=TRUE,
-               precScanNum=ScanNum,precursorMz=precMass,precursorCharge=precCharge)
-
-  
-  if (grepl(Oxidation,peptide)){
+    spectra_file=as.character(DF[i,]$SpectraFile)
     
-    theoretical_peaks=calculateFragments(seq,modifications=c(M=15.995,C=57.021,Nterm=229.163,K=229.163),
-                                        z=1,neutralLoss=NULL)
-    theoretical_peaks$intensity=10000
-    theoretical_spectrum = new("Spectrum2",intensity=theoretical_peaks$intensity,mz=theoretical_peaks$mz,centroided=TRUE)
+    mzml_file=paste0(mzml_path,spectra_file)
+    ScanNum=as.integer(DF[i,]$ScanNum)
+    peptide=as.character(DF[i,]$Peptide)
+    seq=DF[i,]$Sequence
+    precMass=DF[i,]$Precursor
+    precCharge=DF[i,]$Charge
     
-    plot(exp_spectrum,theoretical_spectrum,tolerance=Frag.ions.tolerance,relative=FALSE,
-         sequences=c(seq,seq),modifications=c(M=15.995,C=57.021,Nterm=229.163,K=229.163),
-         z=1,neutralLoss=NULL,peaks.cex=0,peaks.lwd=1)
-  }else {
+    if (is.null(Spectra_list[[spectra_file]])){
+        Spectra_list[[spectra_file]]=openMSfile(mzml_file,verbose=T)
+    }
     
-    theoretical_peaks=calculateFragments(seq,modifications=c(C=57.021,Nterm=229.163,K=229.163),
-                                         z=1,neutralLoss=NULL)
-    theoretical_peaks$intensity=10000
-    theoretical_spectrum = new("Spectrum2",intensity=theoretical_peaks$intensity,mz=theoretical_peaks$mz,centroided=TRUE)
+    exp_peaks<-as.data.frame(peaks(Spectra_list[[spectra_file]],scan=ScanNum))
+    colnames(exp_peaks) = c("mz","intensity")
     
-    plot(exp_spectrum,theoretical_spectrum,tolerance=Frag.ions.tolerance,relative=FALSE,
-         sequences=c(seq,seq),modifications=c(C=57.021,Nterm=229.163,K=229.163),
-         z=1,neutralLoss=NULL,peaks.cex=0,peaks.lwd=1)
-  }
-  legend("topright", "experimental")
-  legend("bottomright", "theoretical")
+    predicted_peaks = predict_MS2_spectrum(Peptide = peptide  )
+    match_ions = match_exp2predicted(exp_peaks, predicted_peaks, tolerance =Frag.ions.tolerance, relative = relative )
+    
+    exp_peaks=exp_peaks[order(exp_peaks$intensity,decreasing = T),]
+    
+    spectrum_info = paste("precScan:",as.character(ScanNum),
+    "precMass:",as.character(precMass),
+    "precCharge:",as.character(precCharge))
+    
+    ggplot(exp_peaks,aes(x=mz, ymax=intensity, ymin=0)) +geom_linerange()+
+    geom_point(data = match_ions, aes(x=mz, y=intensity, color=type))+
+    geom_text(data = match_ions, aes(x=mz, y=intensity, label= ion  ),colour="black")+
+    annotate("text", -Inf, Inf, label = spectrum_info, hjust = 0, vjust = 1)+
+    ylab('Intensity')+xlab('M/Z')+ggtitle(peptide)
 }
 
 dev.off()
+
