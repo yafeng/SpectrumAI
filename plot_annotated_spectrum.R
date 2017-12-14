@@ -26,6 +26,8 @@ relative = FALSE
 Spectra_list= vector(mode="list", length=length(unique(as.character(DF[,]$SpectraFile))))
 names(Spectra_list)=unique(as.character(DF[,]$SpectraFile))
 
+require(lattice)
+
 pdf("PSM.annotated.spectra.pdf",width=12,height=7,useDingbats = FALSE)
 for (i in 1:nrow(DF)){
     spectra_file=as.character(DF[i,]$SpectraFile)
@@ -53,11 +55,12 @@ for (i in 1:nrow(DF)){
     "precMass:",as.character(precMass),
     "precCharge:",as.character(precCharge))
     
-    ggplot(exp_peaks,aes(x=mz, ymax=intensity, ymin=0)) +geom_linerange()+
+    print (ggplot(exp_peaks,aes(x=mz, ymax=intensity, ymin=0)) +geom_linerange()+
     geom_point(data = match_ions, aes(x=mz, y=intensity, color=type))+
     geom_text(data = match_ions, aes(x=mz, y=intensity, label= ion  ),colour="black")+
     annotate("text", -Inf, Inf, label = spectrum_info, hjust = 0, vjust = 1)+
     ylab('Intensity')+xlab('M/Z')+ggtitle(peptide)
+    )
 }
 
 dev.off()
