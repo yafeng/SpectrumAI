@@ -188,13 +188,12 @@ InspectSpectrum <- function (DF){
 #set your working directory
 setwd()
 
-#set one or multiple paths in which raw files are located
+#set absolute file path where raw files are located
 mzml_path= ""
 
-#set one or multiple PSM tables which should be in same order as the path vector
-#For example, path of raw spectra in the first PSM file should be found in first path location in the path vector, and so on
+#set file name for input PSM table
 infile_name =""
-#set corresponding output file name for each of input PSM file, in same order
+#set corresponding output file name
 outfile_name =""
 
 Frag.ions.tolerance= 0.02 # 0.02 Da tolerance for MS2 fragment ions mass accuracy.
@@ -207,13 +206,13 @@ relative=FALSE
 start.time <- Sys.time()
 start.time
 
-df.psm=read.table(infile,sep="\t",header=T,comment.char = "",quote = "")
+df.psm=read.table(infile_name,sep="\t",header=T,comment.char = "",quote = "")
   #Before running the next command, double check the header names in the input PSM table
   #The df.psm dataframe should have at least the following columns with exactly same names (the order can be different): 
   # "SpectraFile", "ScanNum", "Peptide",  "sub_pos" 
 
 InspectSpectrum(df.psm)
-write.table(df.psm,outfile,sep="\t",quote=F,row.names=F)
+write.table(df.psm,outfile_name,sep="\t",quote=F,row.names=F)
 
 end.time <- Sys.time()
 time.taken <- end.time - start.time
