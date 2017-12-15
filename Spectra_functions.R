@@ -2,10 +2,9 @@ require(mzR)
 require(protViz)
 require(stringr)
 
-predict_MS2_spectrum <- function (Peptide){
+predict_MS2_spectrum <- function (Peptide, product_ion_charge = 1){
     pepMSGF=gsub("[^A-Z]","",Peptide)
     size = nchar(pepMSGF)
-    
     pepMSGFMods=Peptide
     pepMSGFMods=str_replace_all(pepMSGFMods,pattern = "([\\+,0-9,:,\\.]+)" ,replacement = "\\1:" )
     
@@ -24,14 +23,21 @@ predict_MS2_spectrum <- function (Peptide){
     pepMSGFWeights = protViz::aa2mass(pepMSGF)[[1]]
     pepMSGFWeights =  pepMSGFWeights + t(as.double(pepMSGFMods[,2]))
     
-    
     ions=fragmentIon(pepMSGFWeights)
+    #convert it data frame
     ions <- data.frame(mz=c(ions[[1]]$b,ions[[1]]$y),
     ion=c(paste0(rep("b",size),1:size),paste0(rep("y",size),1:size)),
     type=c(rep("b",size),rep("y",size)),
     pos =rep(1:size,2),
     z=rep(1,size*2))
     
+    proton_mono_mass = 1.007276
+    if (product_ion_charge>1){
+        ions2 = ions
+        ions2$mz = (ions$mz + proton_mono_mass)/2
+        ions2$z = 2
+        ions = rbind(ions,ions2)
+    }
     return (ions)
 }
 

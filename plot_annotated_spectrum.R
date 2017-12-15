@@ -29,6 +29,7 @@ names(Spectra_list)=unique(as.character(DF[,]$SpectraFile))
 require(lattice)
 
 pdf("PSM.annotated.spectra.pdf",width=12,height=7,useDingbats = FALSE)
+
 for (i in 1:nrow(DF)){
     spectra_file=as.character(DF[i,]$SpectraFile)
     
@@ -46,10 +47,8 @@ for (i in 1:nrow(DF)){
     exp_peaks<-as.data.frame(peaks(Spectra_list[[spectra_file]],scan=ScanNum))
     colnames(exp_peaks) = c("mz","intensity")
     
-    predicted_peaks = predict_MS2_spectrum(Peptide = peptide  )
+    predicted_peaks = predict_MS2_spectrum(Peptide = peptide, product_ion_charge = 1)
     match_ions = match_exp2predicted(exp_peaks, predicted_peaks, tolerance =Frag.ions.tolerance, relative = relative )
-    
-    exp_peaks=exp_peaks[order(exp_peaks$intensity,decreasing = T),]
     
     spectrum_info = paste("precScan:",as.character(ScanNum),
     "precMass:",as.character(precMass),
@@ -59,7 +58,7 @@ for (i in 1:nrow(DF)){
     geom_point(data = match_ions, aes(x=mz, y=intensity, color=type))+
     geom_text(data = match_ions, aes(x=mz, y=intensity, label= ion  ),colour="black")+
     annotate("text", -Inf, Inf, label = spectrum_info, hjust = 0, vjust = 1)+
-    ylab('Intensity')+xlab('M/Z')+ggtitle(peptide)
+    ylab('Intensity')+xlab('M/Z')+ggtitle(peptide)+theme(plot.title = element_text(hjust = 0.5))
     )
 }
 
