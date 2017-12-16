@@ -5,12 +5,13 @@ library(stringr)
 
 options(stringsAsFactors = FALSE)
 
-#To call functions defined in SpectrumAI.R
+#To call functions defined in Spectra_functions.R
 source("./Spectra_functions.R")
 
 #set working directory which contains the PSM table
 setwd("")
 
+#set absolute file path where raw files are located
 mzml_path=""
 
 infile=""
@@ -50,9 +51,10 @@ for (i in 1:nrow(DF)){
     predicted_peaks = predict_MS2_spectrum(Peptide = peptide, product_ion_charge = 1)
     match_ions = match_exp2predicted(exp_peaks, predicted_peaks, tolerance =Frag.ions.tolerance, relative = relative )
     
-    spectrum_info = paste("precScan:",as.character(ScanNum),
+    spectrum_info = paste("Scan Number:",as.character(ScanNum),
     "precMass:",as.character(precMass),
-    "precCharge:",as.character(precCharge))
+    "precCharge:",as.character(precCharge),
+    "Sequence:",seq)
     
     print (ggplot(exp_peaks,aes(x=mz, ymax=intensity, ymin=0)) +geom_linerange()+
     geom_point(data = match_ions, aes(x=mz, y=intensity, color=type))+
