@@ -1,7 +1,31 @@
 library(mzR)
 library(protViz)
 library(stringr)
-source("./Spectra_functions.R")
+
+
+# Usage:
+# RScript SpectrumAI.R /path/to/mzmls/ /path/to/psmtable.txt /path/to/out.file
+# If using interactive environment such as RStudio, simply set the following variable to True,
+# and uncomment and change the args below it
+use.interactive = F
+# args = c('/path/to/mzmls/', '/path/to/psmtable.txt', '/path/to/out.file')
+
+
+if (use.interactive) {
+       source('./Spectra_functions.R')
+} else {
+        args = commandArgs(trailingOnly = F)  # For scripted use
+        mzml_path= args[1]
+        infile_name = args[2]
+        outfile_name = args[3]
+        # Get script file location when running RScript
+        fileflag <- "--file="
+        script.fullpath <- sub(fileflag, "", args[grep(fileflag, args)])
+        script.dir <- dirname(script.fullpath)
+        specfuncfile <- file.path(script.dir, "Spectra_functions.R")
+        source(specfuncfile)
+}
+
 
 options(stringsAsFactors = FALSE)
 
@@ -138,18 +162,6 @@ InspectSpectrum <- function (DF){
         }
     }
 }
-
-# Usage:
-# RScript SpectrumAI.R /path/to/mzmls/ /path/to/psmtable.txt /path/to/out.file
-# If using interactive environment such as RStudio, simply switch the commented line 
-# that determines which method to determine arguments, and fill in by hand
-
-# args = c('/path/to/mzmls/' '/path/to/psmtable.txt' '/path/to/out.file')  # For interactive use
-args = commandArgs(trailingOnly = T)  # For scripted use
-
-mzml_path= args[1]
-infile_name = args[2]
-outfile_name = args[3]
 
 Frag.ions.tolerance= 0.02 # 0.02 Da tolerance for MS2 fragment ions mass accuracy.
 relative=FALSE
