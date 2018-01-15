@@ -139,16 +139,17 @@ InspectSpectrum <- function (DF){
     }
 }
 
-#set your working directory
-setwd()
+# Usage:
+# RScript SpectrumAI.R /path/to/mzmls/ /path/to/psmtable.txt /path/to/out.file
+# If using interactive environment such as RStudio, simply switch the commented line 
+# that determines which method to determine arguments, and fill in by hand
 
-#set absolute file path where raw files are located
-mzml_path= ""
+# args = c('/path/to/mzmls/' '/path/to/psmtable.txt' '/path/to/out.file')  # For interactive use
+args = commandArgs(trailingOnly = T)  # For scripted use
 
-#set file name for input PSM table
-infile_name =""
-#set corresponding output file name
-outfile_name =""
+mzml_path= args[1]
+infile_name = args[2]
+outfile_name = args[3]
 
 Frag.ions.tolerance= 0.02 # 0.02 Da tolerance for MS2 fragment ions mass accuracy.
 relative=FALSE
