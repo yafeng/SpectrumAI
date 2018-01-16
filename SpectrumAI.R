@@ -15,15 +15,16 @@ if (use.interactive) {
        source('./Spectra_functions.R')
 } else {
         args = commandArgs(trailingOnly = F)  # For scripted use
-        mzml_path= args[1]
-        infile_name = args[2]
-        outfile_name = args[3]
         # Get script file location when running RScript
         fileflag <- "--file="
         script.fullpath <- sub(fileflag, "", args[grep(fileflag, args)])
         script.dir <- dirname(script.fullpath)
         specfuncfile <- file.path(script.dir, "Spectra_functions.R")
         source(specfuncfile)
+        cmargs = commandArgs(trailingOnly = T)
+        mzml_path= cmargs[1]
+        infile_name = cmargs[2]
+        outfile_name = cmargs[3]
 }
 
 
