@@ -4,7 +4,10 @@ library(stringr)
 
 
 # Usage:
-# RScript SpectrumAI.R /path/to/mzmls/ /path/to/psmtable.txt /path/to/out.file
+# RScript SpectrumAI.R /path/to/mzmls/ /path/to/psmtable.txt specfile_colnr /path/to/out.file
+# E.g:
+# Rscript SpectrumAI.R /home/user/mzmldir /home/user/psms.txt 1 /home/user/specAI_output.txt
+
 # If using interactive environment such as RStudio, simply set the following variable to True,
 # and uncomment and change the args below it
 use.interactive = F
@@ -24,7 +27,8 @@ if (use.interactive) {
         cmargs = commandArgs(trailingOnly = T)
         mzml_path= cmargs[1]
         infile_name = cmargs[2]
-        outfile_name = cmargs[3]
+        spectra_file_column = cmargs[3]
+        outfile_name = cmargs[4]
 }
 
 
