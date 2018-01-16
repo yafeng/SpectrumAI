@@ -165,6 +165,7 @@ InspectSpectrum <- function (DF){
             DF[i,]$flanking_ions_support=DF[i,]$ions_support
         }
     }
+    return(DF)
 }
 
 Frag.ions.tolerance= 0.02 # 0.02 Da tolerance for MS2 fragment ions mass accuracy.
@@ -182,8 +183,8 @@ df.psm=read.table(infile_name,sep="\t",header=T,comment.char = "",quote = "")
   #The df.psm dataframe should have at least the following columns with exactly same names (the order can be different): 
   # "SpectraFile", "ScanNum", "Peptide",  "sub_pos" 
 
-InspectSpectrum(df.psm)
-write.table(df.psm,outfile_name,sep="\t",quote=F,row.names=F)
+df.output = InspectSpectrum(df.psm)
+write.table(df.output,outfile_name,sep="\t",quote=F,row.names=F)
 
 end.time <- Sys.time()
 time.taken <- end.time - start.time
