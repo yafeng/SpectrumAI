@@ -27,8 +27,7 @@ if (use.interactive) {
         cmargs = commandArgs(trailingOnly = T)
         mzml_path= cmargs[1]
         infile_name = cmargs[2]
-        spectra_file_column = cmargs[3]
-        outfile_name = cmargs[4]
+        outfile_name = cmargs[3]
 }
 
 
