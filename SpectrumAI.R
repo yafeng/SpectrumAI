@@ -60,7 +60,7 @@ InspectSpectrum <- function (DF){
 
     for (i in 1:nrow(DF)){
         spectra_file=as.character(DF[i,]$SpectraFile)
-        mzml_file=paste0(mzml_path,spectra_file)
+        mzml_file=file.path(mzml_path,spectra_file)
         ScanNum=as.integer(DF[i,]$ScanNum)
         peptide=as.character(DF[i,]$Peptide)
         sub_pos=as.integer(DF[i,]$sub_pos)
