@@ -55,8 +55,8 @@ InspectSpectrum <- function (DF){
     DF$average_intensity=0
     DF$median_intensity=0
 
-    Spectra_list= vector(mode="list", length=length(unique(as.character(DF[,spectra_file_column]))))
-    names(Spectra_list)=unique(as.character(DF[,spectra_file_column]))
+    Spectra_list= vector(mode="list", length=length(unique(as.character(DF[,]$SpectraFile))))
+    names(Spectra_list)=unique(as.character(DF[,]$SpectraFile))
 
     for (i in 1:nrow(DF)){
         spectra_file=as.character(DF[i,]$SpectraFile)
