@@ -10,7 +10,7 @@ library(stringr)
 
 # If using interactive environment such as RStudio, simply set the following variable to True,
 # and uncomment and change the args below it
-use.interactive = F
+use.interactive = T
 # args = c('/path/to/mzmls/', '/path/to/psmtable.txt', '/path/to/out.file')
 
 
@@ -185,6 +185,16 @@ df.psm=read.table(infile_name,sep="\t",header=T,comment.char = "",quote = "")
 
 InspectSpectrum(df.psm)
 write.table(df.psm,outfile_name,sep="\t",quote=F,row.names=F)
+
+df.sub = df.psm[df.psm$status == "checked",]
+saav_psm_passed = df.sub[df.sub$flanking_ions_support=="YES",]$PrecursorError.ppm.
+saav_psm_failed = df.sub[df.sub$flanking_ions_support=="NO",]$PrecursorError.ppm.
+
+pdf("precursorError.plot.pdf",width = 10, height = 7)
+par(mfrow=c(1,2))
+hist(saav_psm_passed,breaks=20,xlab="precMassError (ppm)",main="SpectrumAI curated")
+hist(saav_psm_failed,breaks=20,xlab="precMassError (ppm)",main="SpectrumAI discarded")
+dev.off()
 
 end.time <- Sys.time()
 time.taken <- end.time - start.time
