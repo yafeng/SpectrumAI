@@ -190,7 +190,7 @@ df.sub = df.psm[df.psm$status == "checked",]
 saav_psm_passed = df.sub[df.sub$flanking_ions_support=="YES",]$PrecursorError.ppm.
 saav_psm_failed = df.sub[df.sub$flanking_ions_support=="NO",]$PrecursorError.ppm.
 
-pdf("precursorError.plot.pdf",width = 10, height = 7)
+pdf("precursorError.histogram.plot.pdf",width = 10, height = 7)
 par(mfrow=c(1,2))
 hist(saav_psm_passed,breaks=20,xlab="precMassError (ppm)",main="SpectrumAI curated")
 hist(saav_psm_failed,breaks=20,xlab="precMassError (ppm)",main="SpectrumAI discarded")
