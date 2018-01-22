@@ -10,7 +10,7 @@ library(stringr)
 
 # If using interactive environment such as RStudio, simply set the following variable to True,
 # and uncomment and change the args below it
-use.interactive = T
+use.interactive = F
 # args = c('/path/to/mzmls/', '/path/to/psmtable.txt', '/path/to/out.file')
 
 
