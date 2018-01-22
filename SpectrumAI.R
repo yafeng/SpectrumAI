@@ -27,8 +27,7 @@ if (use.interactive) {
         cmargs = commandArgs(trailingOnly = T)
         mzml_path= cmargs[1]
         infile_name = cmargs[2]
-        spectra_file_column = cmargs[3]
-        outfile_name = cmargs[4]
+        outfile_name = cmargs[3]
 }
 
 
@@ -60,7 +59,7 @@ InspectSpectrum <- function (DF){
 
     for (i in 1:nrow(DF)){
         spectra_file=as.character(DF[i,]$SpectraFile)
-        mzml_file=paste0(mzml_path,spectra_file)
+        mzml_file=file.path(mzml_path,spectra_file)
         ScanNum=as.integer(DF[i,]$ScanNum)
         peptide=as.character(DF[i,]$Peptide)
         sub_pos=as.integer(DF[i,]$sub_pos)
@@ -166,6 +165,7 @@ InspectSpectrum <- function (DF){
             DF[i,]$flanking_ions_support=DF[i,]$ions_support
         }
     }
+    return(DF)
 }
 
 Frag.ions.tolerance= 0.02 # 0.02 Da tolerance for MS2 fragment ions mass accuracy.
@@ -183,8 +183,8 @@ df.psm=read.table(infile_name,sep="\t",header=T,comment.char = "",quote = "")
   #The df.psm dataframe should have at least the following columns with exactly same names (the order can be different): 
   # "SpectraFile", "ScanNum", "Peptide",  "sub_pos" 
 
-InspectSpectrum(df.psm)
-write.table(df.psm,outfile_name,sep="\t",quote=F,row.names=F)
+df.output = InspectSpectrum(df.psm)
+write.table(df.output,outfile_name,sep="\t",quote=F,row.names=F)
 
 df.sub = df.psm[df.psm$status == "checked",]
 saav_psm_passed = df.sub[df.sub$flanking_ions_support=="YES",]$PrecursorError.ppm.
