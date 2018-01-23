@@ -186,7 +186,7 @@ df.psm=read.table(infile_name,sep="\t",header=T,comment.char = "",quote = "")
 df.output = InspectSpectrum(df.psm)
 write.table(df.output,outfile_name,sep="\t",quote=F,row.names=F)
 
-df.sub = df.psm[df.psm$status == "checked",]
+df.sub = df.output[df.output$status == "checked",]
 saav_psm_passed = df.sub[df.sub$flanking_ions_support=="YES",]$PrecursorError.ppm.
 saav_psm_failed = df.sub[df.sub$flanking_ions_support=="NO",]$PrecursorError.ppm.
 
