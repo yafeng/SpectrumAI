@@ -183,6 +183,11 @@ df.psm=read.table(infile_name,sep="\t",header=T,comment.char = "",quote = "")
   #The df.psm dataframe should have at least the following columns with exactly same names (the order can be different): 
   # "SpectraFile", "ScanNum", "Peptide",  "sub_pos" 
 
+if (nrow(df.psm)<1){
+    write.table(df.psm,outfile_name,sep="\t",quote=F,row.names=F)
+    quit()
+}
+
 df.output = InspectSpectrum(df.psm)
 write.table(df.output,outfile_name,sep="\t",quote=F,row.names=F)
 
