@@ -1,5 +1,9 @@
 # SpectrumAI
-R script to automatically inspect MS2 spectra of single-subsititution peptide identifications. Manuscript under review process. 
+R script to automatically inspect MS2 spectra of single-subsititution peptide identifications.
+
+Please cite this paper when you have used the SpectrumAI in your publications.
+
+Zhu Y, Orre LM, Johansson HJ, Huss M, Boekel J, Vesterlund M, Fernandez-Woodbridge A, Branca RMM, Lehtio J: Discovery of coding regions in the human genome by integrated proteogenomics analysis workflow. Nat Commun 2018, 9(1):903.  [PMID: 29500430](https://www.ncbi.nlm.nih.gov/pubmed/29500430)
 
 SpectrumAI.R is the script to curate PSMs of single-substitution peptides.
 
