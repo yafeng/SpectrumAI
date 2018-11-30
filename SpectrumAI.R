@@ -1,5 +1,7 @@
-library(mzR)
+#!/usr/bin/env Rscript
+
 library(protViz)
+library(MSnbase)
 library(stringr)
 
 
@@ -66,10 +68,11 @@ InspectSpectrum <- function (DF){
         seq=DF[i,]$Sequence
         
         if (is.null(Spectra_list[[spectra_file]])){
-            Spectra_list[[spectra_file]]=openMSfile(mzml_file,verbose=T)
+            Spectra_list[[spectra_file]]=spectra(readMSData(mzml_file))
         }
         
-        exp_peaks<-peaks(Spectra_list[[spectra_file]],scan=ScanNum)
+        spectrum = Filter(function(f) acquisitionNum(f)==ScanNum, Spectra_list[[spectra_file]])[[1]]
+        exp_peaks = cbind(mz(spectrum), intensity(spectrum))
         predicted_peaks = predict_MS2_spectrum(Peptide =  as.character(DF[i,]$Peptide))
         match_ions = match_exp2predicted(exp_peaks, predicted_peaks, tolerance =Frag.ions.tolerance, relative = relative )
         
