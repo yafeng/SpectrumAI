@@ -14,7 +14,7 @@ plot_annotated_spectrum.R is the script to draw annotated spectra of any PSM. (m
 
 # Prerequisite R library
 
-requires R libraries "mzR" , "protViz", and "MSnbase".
+Requires R libraries `mzR` , `protViz`, and `MSnbase`.
 
 Install them from Bioconductor
 
@@ -22,6 +22,7 @@ Install them from Bioconductor
 if (!requireNamespace("BiocManager", quietly = TRUE))
 	install.packages("BiocManager")
 
+## mzR will be installed automatically as MSnbase depends on it
 BiocManager::install(c("MSnbase", "protViz"))
 ```
 
