@@ -9,7 +9,7 @@ SpectrumAI.R is the script to curate PSMs of single-substitution peptides.
 
 plot_mirror_image.R is the script to draw MS2 spectrum mirror image of synthetic and endogenous peptide.
 
-plot_annotated_spectrum.R is the script to draw annotated spectra of any PSM. (matched b,y ions to theorectial spectrum will be highlighted) 
+plot_annotated_spectrum.R is the script to draw annotated spectra of any PSM. (matched b,y ions to theorectial spectrum will be highlighted)
 
 
 # Prerequisite R library
@@ -18,13 +18,12 @@ requires R libraries "mzR" , "protViz", and "MSnbase".
 
 Install them from Bioconductor
 
-source("https://bioconductor.org/biocLite.R")
+```r
+if (!requireNamespace("BiocManager", quietly = TRUE))
+	install.packages("BiocManager")
 
-biocLite("mzR")
-
-biocLite("MSnbase")
-
-biocLite("protViz")
+BiocManager::install(c("MSnbase", "protViz"))
+```
 
 # How does SpectrumAI work?
 
@@ -41,13 +40,13 @@ Assume a 12-amino-acid peptide is identified with single substitution at 8th res
 ## To curate a list of variant peptide identifications (support only MSGF+ search outputs)
 1. Prepare the list of variant peptide PSMs table in tabular format. It should contain at least the following columns with exactly same names (the order can be different):
 
-    "SpectraFile" -  The filename of spectra file in which the variant peptide PSM is identified.
-    
-    "ScanNum" - The scan number
-    
-    "Peptide" - The peptide sequence. Modifications are noted. For instance, in MSGF+ search engine output, "M+15.995GYEEAE", M+15.995 is used to indicate oxidation on Methonine.
+	"SpectraFile" -  The filename of spectra file in which the variant peptide PSM is identified.
 
-    "sub_pos" -  position in peptide indicate which amino acid is substituted. index starts from 1.
+	"ScanNum" - The scan number
+
+	"Peptide" - The peptide sequence. Modifications are noted. For instance, in MSGF+ search engine output, "M+15.995GYEEAE", M+15.995 is used to indicate oxidation on Methonine.
+
+	"sub_pos" -  position in peptide indicate which amino acid is substituted. index starts from 1.
 
 2. Open SpectrumAI.R script in R Studio.
 
@@ -67,5 +66,3 @@ relative=FALSE  # set TRUE if ppm value is used for Frag.ions.tolerance
 
 
 ## To generate annotated spectra of peptide identifications (to be updated)
-
-
