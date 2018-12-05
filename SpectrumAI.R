@@ -1,5 +1,7 @@
-library(mzR)
+#!/usr/bin/env Rscript
+
 library(protViz)
+library(MSnbase)
 library(stringr)
 
 
@@ -16,6 +18,7 @@ use.interactive = F
 
 if (use.interactive) {
        source('./Spectra_functions.R')
+       enforce_scans = FALSE
 } else {
         args = commandArgs(trailingOnly = F)  # For scripted use
         # Get script file location when running RScript
@@ -28,6 +31,7 @@ if (use.interactive) {
         mzml_path= cmargs[1]
         infile_name = cmargs[2]
         outfile_name = cmargs[3]
+	if (length(cmargs) == 4) enforce_scans = cmargs[4] == '--enforce-scans' else enforce_scans = FALSE
 }
 
 
@@ -66,10 +70,19 @@ InspectSpectrum <- function (DF){
         seq=DF[i,]$Sequence
         
         if (is.null(Spectra_list[[spectra_file]])){
-            Spectra_list[[spectra_file]]=openMSfile(mzml_file,verbose=T)
+            if (enforce_scans) {
+                Spectra_list[[spectra_file]] = readMSData(mzml_file, mode="onDisk")
+            } else {
+                Spectra_list[[spectra_file]] = openMSfile(mzml_file, verbose=T)
+            }
+        }
+        if (enforce_scans) {
+            spectrum = Spectra_list[[spectra_file]][[ which(acquisitionNum(Spectra_list[[spectra_file]])==ScanNum) ]]
+            exp_peaks = cbind(mz(spectrum), intensity(spectrum))
+        } else {
+            exp_peaks <- peaks(Spectra_list[[spectra_file]], scan=ScanNum)
         }
         
-        exp_peaks<-peaks(Spectra_list[[spectra_file]],scan=ScanNum)
         predicted_peaks = predict_MS2_spectrum(Peptide =  as.character(DF[i,]$Peptide))
         match_ions = match_exp2predicted(exp_peaks, predicted_peaks, tolerance =Frag.ions.tolerance, relative = relative )
         
