@@ -162,7 +162,7 @@ InspectSpectrum <- function (DF){
             flanking_ions_right=intersect(flanking_ions_right,match_ions$ion)
             
             flanking_ions=union(flanking_ions_left,flanking_ions_right)
-            if ( length(flanking_ions_left)>0 & length(flanking_ions_left)>0){
+            if ( length(flanking_ions_left)>0 & length(flanking_ions_right)>0){
                 flanking_ions_support="YES"
             }
         }
