@@ -60,6 +60,7 @@ outfile_name =""  #set corresponding output file name
 Frag.ions.tolerance= 0.02 # 0.02 Da tolerance for MS2 fragment ions mass accuracy.
 relative=FALSE  # set TRUE if ppm value is used for Frag.ions.tolerance
 ```
+**Warning! SpectrumAI has not been tested in low-resolution MS data, it may not perfrom as expected.**
 
 4. After you set everything, ctrl-A to select all codes and click run.
 
@@ -72,9 +73,13 @@ without any mismatch of major b and y ions.
 
 To make this mirror plot for a list of candidate peptides, you need have these files
 at hand.
-PSM table of candidate peptides with spectra file information, scan number, peptide sequences
-PSM table of synthetic peptides with spectra file information, scan number, peptide sequences
-All mzML spectra file that are present in candidate peptides PSM table are stored in one folder
-All mzML spectra file that are present in synthetic peptides PSM table are stored in one folder
+
+PSM table of candidate peptides including spectra file information, scan number, peptide sequences.
+
+PSM table of synthetic peptides including spectra file information, scan number, peptide sequences.
+
+All mzML spectra file that are present in candidate peptides PSM table are stored in one folder.
+
+All mzML spectra file that are present in synthetic peptides PSM table are stored in one folder.
 
 ## To generate annotated spectra of peptide identifications (to be updated)
