@@ -64,6 +64,17 @@ relative=FALSE  # set TRUE if ppm value is used for Frag.ions.tolerance
 4. After you set everything, ctrl-A to select all codes and click run.
 
 ## To generate mirror plots for a list of synthetic peptides (to be updated)
+"plot_mirror_image.R" is the R script to generate the mirror plot in Figure 3C.
+The mirror plot is generally used to assess if the peptide spectrum match of your candidate
+peptide is correct. By generating a clean MS spectrum of synthetic peptide sequence, you
+expect it to resemble the original spetrum of your candidate peptide as a mirrored image
+without any mismatch of major b and y ions.
 
+To make this mirror plot for a list of candidate peptides, you need have these files
+at hand.
+PSM table of candidate peptides with spectra file information, scan number, peptide sequences
+PSM table of synthetic peptides with spectra file information, scan number, peptide sequences
+All mzML spectra file that are present in candidate peptides PSM table are stored in one folder
+All mzML spectra file that are present in synthetic peptides PSM table are stored in one folder
 
 ## To generate annotated spectra of peptide identifications (to be updated)
