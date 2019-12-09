@@ -3,42 +3,44 @@ require(protViz)
 require(stringr)
 
 predict_MS2_spectrum <- function (Peptide, product_ion_charge = 1){
-    pepMSGF=gsub("[^A-Z]","",Peptide)
-    size = nchar(pepMSGF)
-    pepMSGFMods=Peptide
-    pepMSGFMods=str_replace_all(pepMSGFMods,pattern = "([\\+,0-9,:,\\.]+)" ,replacement = "\\1:" )
-    
-    l='none'
-    while (l != pepMSGFMods){
-        l=pepMSGFMods
-        pepMSGFMods=sub("([^\\+,0-9,:])([^\\+,0-9,:])", "\\1:\\2", pepMSGFMods, perl=TRUE)
-    }
-    pepMSGFMods=t(str_split(pepMSGFMods,pattern = ":",simplify = T))
-    pepMSGFMods=data.frame(str_split_fixed(pepMSGFMods,pattern = "\\+",2), stringsAsFactors = F)
-    pepMSGFMods[pepMSGFMods[,2]=="",2]=0
-    pepMSGFMods[,2]=  as.double(pepMSGFMods[,2])
+  pepMSGF=gsub("[^A-Z]","",Peptide)
+  size = nchar(pepMSGF)
+  pepMSGFMods=Peptide
+  pepMSGFMods=str_replace_all(pepMSGFMods,pattern = "([\\+,0-9,:,\\.]+)" ,replacement = "\\1:" )
+  
+  l='none'
+  while (l != pepMSGFMods){
+    l=pepMSGFMods
+    pepMSGFMods=sub("([^\\+,\\-,0-9,:])([^\\+,\\-,0-9,:])", "\\1:\\2", pepMSGFMods, perl=TRUE)
+  }
+  pepMSGFMods=t(str_split(pepMSGFMods,pattern = ":",simplify = T))
+  pepMSGFMods=data.frame(X1=str_extract(pepMSGFMods,"[A-Z]+"),X2=str_extract(pepMSGFMods,"[^A-Z]+"), stringsAsFactors = F)
+  pepMSGFMods[is.na(pepMSGFMods)] <- 0
+  pepMSGFMods[,2]=  as.double(pepMSGFMods[,2])
+  if (pepMSGFMods[1,1]==""){ # add mass of N-term modification to the first amino acid if there is one
     pepMSGFMods[2,2] = pepMSGFMods[1,2] + pepMSGFMods[2,2]
-    
-    pepMSGFMods=pepMSGFMods[nchar(pepMSGFMods[,1])>0,]
-    pepMSGFWeights = protViz::aa2mass(pepMSGF)[[1]]
-    pepMSGFWeights =  pepMSGFWeights + t(as.double(pepMSGFMods[,2]))
-    
-    ions=fragmentIon(pepMSGFWeights)
-    #convert it data frame
-    ions <- data.frame(mz=c(ions[[1]]$b,ions[[1]]$y),
-    ion=c(paste0(rep("b",size),1:size),paste0(rep("y",size),1:size)),
-    type=c(rep("b",size),rep("y",size)),
-    pos =rep(1:size,2),
-    z=rep(1,size*2))
-    
-    proton_mono_mass = 1.007276
-    if (product_ion_charge>1){
-        ions2 = ions
-        ions2$mz = (ions$mz + proton_mono_mass)/2
-        ions2$z = 2
-        ions = rbind(ions,ions2)
-    }
-    return (ions)
+  }
+  
+  pepMSGFMods=pepMSGFMods[nchar(pepMSGFMods[,1])>0,] # remove the line of N-term Mass  
+  pepMSGFWeights = protViz::aa2mass(pepMSGF)[[1]]
+  pepMSGFWeights =  pepMSGFWeights + t(as.double(pepMSGFMods[,2]))
+  
+  ions=fragmentIon(pepMSGFWeights)
+  #convert it data frame
+  ions <- data.frame(mz=c(ions[[1]]$b,ions[[1]]$y),
+                     ion=c(paste0(rep("b",size),1:size),paste0(rep("y",size),1:size)),
+                     type=c(rep("b",size),rep("y",size)),
+                     pos =rep(1:size,2),
+                     z=rep(1,size*2))
+  
+  proton_mono_mass = 1.007276
+  if (product_ion_charge>1){
+    ions2 = ions
+    ions2$mz = (ions$mz + proton_mono_mass)/2
+    ions2$z = 2
+    ions = rbind(ions,ions2)
+  }
+  return (ions)
 }
 
 match_exp2predicted <- function (exp_peak,pred_peak,tolerance = 0.02, relative=FALSE){
