@@ -15,13 +15,13 @@ predict_MS2_spectrum <- function (Peptide, product_ion_charge = 1){
   }
   pepMSGFMods=t(str_split(pepMSGFMods,pattern = ":",simplify = T))
   pepMSGFMods=data.frame(X1=str_extract(pepMSGFMods,"[A-Z]+"),X2=str_extract(pepMSGFMods,"[^A-Z]+"), stringsAsFactors = F)
-  pepMSGFMods[is.na(pepMSGFMods)] <- 0
+  pepMSGFMods[,2][is.na(pepMSGFMods[,2])] <- 0
   pepMSGFMods[,2]=  as.double(pepMSGFMods[,2])
-  if (pepMSGFMods[1,1]==""){ # add mass of N-term modification to the first amino acid if there is one
+  if (is.na(pepMSGFMods[1,1])){ # add mass of N-term modification to the first amino acid if there is one
     pepMSGFMods[2,2] = pepMSGFMods[1,2] + pepMSGFMods[2,2]
   }
   
-  pepMSGFMods=pepMSGFMods[nchar(pepMSGFMods[,1])>0,] # remove the line of N-term Mass  
+  pepMSGFMods=na.omit(pepMSGFMods) # remove the line of N-term Mass  
   pepMSGFWeights = protViz::aa2mass(pepMSGF)[[1]]
   pepMSGFWeights =  pepMSGFWeights + t(as.double(pepMSGFMods[,2]))
   
