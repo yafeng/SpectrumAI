@@ -210,8 +210,12 @@ saav_psm_failed = df.sub[df.sub$flanking_ions_support=="NO",]$PrecursorError.ppm
 
 pdf("precursorError.histogram.plot.pdf",width = 10, height = 7)
 par(mfrow=c(1,2))
-hist(saav_psm_passed,breaks=20,xlab="precMassError (ppm)",main="SpectrumAI curated")
-hist(saav_psm_failed,breaks=20,xlab="precMassError (ppm)",main="SpectrumAI discarded")
+if (length(saav_psm_passed)) {
+  hist(saav_psm_passed,breaks=20,xlab="precMassError (ppm)",main="SpectrumAI curated")
+}
+if (length(saav_psm_failed)) {
+  hist(saav_psm_failed,breaks=20,xlab="precMassError (ppm)",main="SpectrumAI discarded")
+}
 dev.off()
 
 end.time <- Sys.time()
